@@ -88,6 +88,7 @@ function egpr_get_data () {
 
 	$egrp_data =  json_decode(file_get_contents($egpr_json));
 
+	// TO DO сchange foreach
 	for($i=0; $i<count($egrp_data->result->reviews); $i++) {		
  		
  		$egpr_profile_photo_url = $egrp_data->result->reviews[$i]->profile_photo_url; 		
@@ -118,35 +119,31 @@ function egpr_get_data () {
 			add_post_meta($post_id, 'egpr_date', $egpr_date, true);
 			add_post_meta($post_id, 'egpr_profile_photo_url', $egpr_profile_photo_url, true);
 
-			//TO DO save avatar to db
-			/*		
+			//save avatar to db					
 			if(!empty($egpr_profile_photo_url)){
 	            require_once(ABSPATH . "wp-admin" . '/includes/image.php');
 	        	require_once(ABSPATH . "wp-admin" . '/includes/file.php');
 	        	require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-	            // Установим данные файла
 	            $file_array = array();
-	            $desc = '';
-	            $tmp = download_url( $egpr_profile_photo_url );
+	            $tmp = download_url( 'http:'.$egpr_profile_photo_url );
 	            preg_match('/[^\?]+\.(jpg|jpe|jpeg|gif|png)/i', $egpr_profile_photo_url, $matches );
 	            $file_array['name'] = basename( $matches[0] );
 	            $file_array['tmp_name'] = $tmp;
-	            // загружаем файл
 	            $id = media_handle_sideload( $file_array, $post_id);
-	            // если ошибка
+	            // if error
 				if( is_wp_error( $id ) ) {
 					@unlink($file_array['tmp_name']);
 					return $id->get_error_messages();
 					error_log(print_r($id->get_error_messages()));
 				}
-	            // удалим временный файл
+	            // delete temp file
 	            @unlink( $file_array['tmp_name'] );
 	            update_post_meta( $post_id, '_thumbnail_id', $id );
 	            $image_id = get_post_thumbnail_id($post_id);
 	        	$image_url = wp_get_attachment_image_src($image_id, 'full');
 	        	$image_url = $image_url[0];
 			}
-			*/
+			
 		}
     }
 }			
@@ -194,7 +191,8 @@ function egpr_review_shortcode() {
 				 <div class="blockquote-list">
 					<blockquote class="clearfix small simple">
 						<div class="quote-thumbnail">
-							<img width="150" height="150" src="<?php echo $egpr_profile_photo_url; ?>" class="attachment-thumbnail size-thumbnail wp-post-image" sizes="(max-width: 150px) 100vw, 150px">
+							<?php $egpr_avatar = get_the_post_thumbnail( $review->ID, array(150,150) ); ?>
+							<?php if (!empty($egpr_avatar)) { echo $egpr_avatar; }  ?>
 							<strong class="quote-title"><a href="<?php echo $egpr_author_url; ?>"><span class="the-title"><?php echo $egpr_author_name; ?></span></a></strong>
 						</div>
 						<div class="quote-text">

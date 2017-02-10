@@ -3,7 +3,7 @@
 Plugin Name: Easy Google Places Reviews
 Plugin URI: en.wphire.ru
 Description: Display your Google business page reviews on your wordpress pages just by adding a single shortcode. 
-Version: 0.1
+Version: 0.2
 Author: Evgenii rezanov
 Author URI: en.wphire.ru
 */
@@ -76,6 +76,7 @@ function egpr_activation() {
 
 // get google data
 add_action('egpr_daily_event', 'egpr_get_data');
+add_shortcode('egpr_get_data','egpr_get_data');
 function egpr_get_data () {
 	
    	$egpr_url = "https://maps.googleapis.com/maps/api/place/details/json?placeid=";
@@ -148,15 +149,16 @@ function egpr_get_data () {
     }
 }			
 
+/*
 add_shortcode('egpr_review_shortcode', 'egpr_review_shortcode');
 function egpr_review_shortcode() {
 
-	$cacheName = 'easy-google-places-revews';
-	$content = get_transient($cacheName);
+	//$cacheName = 'easy-google-places-revews';
+	//$reviews_content = get_transient($cacheName);
 
-	if ($content === false) {
-	    ob_start();
-
+	//if ($reviews_content === false) {
+	    //ob_start();
+	    $html = '';
 		$args = array(
 		'numberposts' => 5,
 		'post_type'   => 'google_review',
@@ -179,45 +181,94 @@ function egpr_review_shortcode() {
 	 				$egpr_profile_photo_url = plugins_url('images', __FILE__).'/profil-pic_dummy.png';
 	 			}
 				// TO DO delete CSS, change style
-				?>
-				 <style>
-				 	.review-rating {
-						width:120px;
-					}
-					.quote-text {
-				    	padding-top: 30px;
-					}
-				</style>
-				 <div class="blockquote-list">
-					<blockquote class="clearfix small simple">
-						<div class="quote-thumbnail">
-							<?php $egpr_avatar = get_the_post_thumbnail( $review->ID, array(150,150) ); ?>
-							<?php if (!empty($egpr_avatar)) { echo $egpr_avatar; }  ?>
-							<strong class="quote-title"><a href="<?php echo $egpr_author_url; ?>"><span class="the-title"><?php echo $egpr_author_name; ?></span></a></strong>
-						</div>
-						<div class="quote-text">
-							<div class="quote-content">
-								<img class ="review-rating" src="<?php echo $egpr_rating_pic; ?>">
-								<br>
-								<span class="review-date"><?php echo date('m/d/Y', $egpr_date); ?></span>
-								<br>
-								<em><?php echo $review->post_content; ?></em>
-							</div>
-						</div>
-					</blockquote>
-				</div>
-				<?php
+
+				 $html .= '<div class="blockquote-list">';
+					$html .= '<blockquote class="clearfix small simple">';
+						$html .= '<div class="quote-thumbnail">';
+							$egpr_avatar = get_the_post_thumbnail( $review->ID, array(150,150) );
+							if (!empty($egpr_avatar)) { $html .= $egpr_avatar; }
+							$html .= '<strong class="quote-title"><a href="'.$egpr_author_url.'"><span class="the-title">'.$egpr_author_name.'</span></a></strong>';
+						$html .= '</div>';
+						$html .= '<div class="quote-text">';
+							$html .= '<div class="quote-content">';
+								$html .= '<img class ="review-rating" src="'.$egpr_rating_pic.'">';
+								$html .= '<br>';
+								$html .= '<span class="review-date">'.date('m/d/Y', $egpr_date).'</span>';
+								$html .= '<br>';
+								$html .= '<em>'.$review->post_content.'</em>';
+							$html .= '</div>';
+						$html .= '</div>';
+					$html .= '</blockquote>';
+				$html .= '</div>';
 			}
 		}
 		else {
-			echo "Cant find reviews!";
+			$html .= 'Cant find reviews!';
 		}
 		wp_reset_postdata();
-		$content = ob_get_contents();
-	    set_transient($cacheName, $content, DAY_IN_SECONDS);
-	    ob_end_clean();
+		//$reviews_content = ob_get_contents();
+	    //set_transient($cacheName, $reviews_content, DAY_IN_SECONDS);
+	    //ob_end_clean();
+	//}
+	//return $reviews_content;
+	return $html;
+}
+*/
+
+
+add_shortcode('egpr_review_shortcode', 'egpr_review_shortcode');
+function egpr_review_shortcode() {
+	ob_start();
+	$args = array(
+		'numberposts' => 5,
+		'post_type'   => 'google_review',
+		'post_status' => 'publish ',
+	);
+
+	$reviews = get_posts( $args );
+
+	if (isset($reviews)) {
+
+		foreach($reviews as $review){ setup_postdata($review);
+			$egpr_author_name = get_post_meta($review->ID, 'egpr_author_name', true);
+			$egpr_date = get_post_meta($review->ID, 'egpr_date', true);
+			$egpr_profile_photo_url = get_post_meta($review->ID, 'egpr_profile_photo_url', true);
+			$egpr_author_url = get_post_meta($review->ID, 'egpr_author_url', true);
+			$egpr_rating = get_post_meta($review->ID, 'egpr_rating', true);
+
+			$egpr_rating_pic = plugins_url('images', __FILE__).'/'.$egpr_rating.'stars.png';
+			if (!isset($egpr_profile_photo_url)) {
+	 			$egpr_profile_photo_url = plugins_url('images', __FILE__).'/profil-pic_dummy.png';
+	 		}
+			?>
+			<div class="blockquote-list">
+				<blockquote class="clearfix small simple">
+					<div class="quote-thumbnail">
+						<?php $egpr_avatar = get_the_post_thumbnail( $review->ID, array(150,150) ); ?>
+						<?php if (!empty($egpr_avatar)) { echo $egpr_avatar; }  ?>
+						<strong class="quote-title"><a href="<?php echo $egpr_author_url; ?>"><span class="the-title"><?php echo $egpr_author_name; ?></span></a></strong>
+					</div>
+					<div class="quote-text">
+						<div class="quote-content">
+							<img class ="review-rating" src="<?php echo $egpr_rating_pic; ?>">
+							<br>
+							<span class="review-date"><?php echo date('m/d/Y', $egpr_date); ?></span>
+							<br>
+							<em><?php echo $review->post_content; ?></em>
+						</div>
+					</div>
+				</blockquote>
+			</div>
+			<?php
+			}
 	}
-	echo $content;
+	else {
+		echo "Cant find reviews!";
+	}
+	
+	wp_reset_postdata();
+	
+	return ob_get_clean();
 }
 
 ?>

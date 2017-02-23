@@ -1,0 +1,21 @@
+.egpr-review {
+    padding: 15px 10px;
+}
+
+img.egpr-avatar, img.egpr-unknow-avatar {
+    width: 66px;
+    height: 66px;
+}
+
+img.egpr-review-rating {
+    max-width: 20% !important;
+}
+
+.egpr-quote-title {
+    display: inline-block;
+}
+
+ul.egpr-weekday-text {
+    list-style: none;
+    margin-left: 10px;
+}

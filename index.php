@@ -123,6 +123,7 @@ function egpr_get_data () {
 	$egpr_name = $response['result']['name'];
 	$egpr_weekday_text = $response['result']['opening_hours']['weekday_text'];
 	$egpr_rating = $response['result']['rating'];
+	// TO DO get  [scope] => GOOGLE [types] => Array ( [0] => veterinary_care [1] => point_of_interest [2] => establishment ) [url] => https://maps.google.com/?cid=4522203070610584017 [utc_offset] => 60 [vicinity] => Rue du Pont-Levis 2, Saint-Prex [website] => http://www.vetmidi.com/ ) [status] => OK )
 
 	add_option('egpr_formatted_address', $egpr_formatted_address);
 	add_option('egpr_international_phone_number', $egpr_international_phone_number);
@@ -138,6 +139,7 @@ function egpr_get_data () {
  		$egpr_rating = $egrp_data->result->reviews[$i]->rating;
  		$egpr_author_name = $egrp_data->result->reviews[$i]->author_name;
  		$egpr_date = $egrp_data->result->reviews[$i]->time;
+ 		// TO DO get [relative_time_description], [type] 
  		$egpr_text = $egrp_data->result->reviews[$i]->text;
  		$egpr_language = $egrp_data->result->reviews[$i]->language;
  		

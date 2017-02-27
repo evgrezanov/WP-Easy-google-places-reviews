@@ -131,7 +131,7 @@ function egpr_get_data () {
 	add_option('egpr_weekday_text', $egpr_weekday_text);
 	add_option('egpr_rating', $egpr_rating);
 
-	// TO DO сchange foreach
+	// TO DO change foreach
 	for($i=0; $i<count($egrp_data->result->reviews); $i++) {		
  		
  		$egpr_profile_photo_url = $egrp_data->result->reviews[$i]->profile_photo_url; 		
